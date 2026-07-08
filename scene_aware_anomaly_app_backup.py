@@ -14,9 +14,6 @@ import torchvision.transforms as transforms
 
 from scipy.ndimage import gaussian_filter
 
-# =========================================================
-# Ayarlar
-# =========================================================
 PROJECT_ROOT = r"C:\Users\Esra\Desktop\project"
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
@@ -31,10 +28,6 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 CLASS_NAMES = ["airport_component", "non_airport"]
 
-
-# =========================================================
-# Low-Level AutoEncoder
-# =========================================================
 class LowLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -69,10 +62,6 @@ class LowLevelAE(nn.Module):
     def forward(self, x):
         return self.decoder(self.encoder(x))
 
-
-# =========================================================
-# High-Level AutoEncoder
-# =========================================================
 class HighLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -108,9 +97,6 @@ class HighLevelAE(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-# =========================================================
-# Model yükleme
-# =========================================================
 @st.cache_resource
 def load_dual_ae_models():
     low_model = LowLevelAE().to(DEVICE)
@@ -170,9 +156,6 @@ def patches_to_tensor(patches):
     return torch.stack(tensors).to(DEVICE)
 
 
-# =========================================================
-# Binary Semantic Classifier
-# =========================================================
 def score_patches_binary_classifier(patches, batch_size=64):
     model = load_binary_classifier()
 
@@ -203,9 +186,6 @@ def score_patches_binary_classifier(patches, batch_size=64):
     )
 
 
-# =========================================================
-# Dual AE Operational Anomaly
-# =========================================================
 def score_patches_dual_ae(patches, batch_size=64):
     low_model, high_model = load_dual_ae_models()
 
@@ -233,9 +213,7 @@ def score_patches_dual_ae(patches, batch_size=64):
     return dual_errors, low_errors, high_errors
 
 
-# =========================================================
-# Yardımcılar
-# =========================================================
+
 def normalize_scores(scores):
     mn = float(scores.min())
     mx = float(scores.max())
@@ -341,9 +319,6 @@ def scene_specific_explanation(
     return text
 
 
-# =========================================================
-# Ana analiz
-# =========================================================
 def analyze_uploaded_image(uploaded_file):
     pil_img = Image.open(uploaded_file).convert("RGB")
 
@@ -363,10 +338,10 @@ def analyze_uploaded_image(uploaded_file):
     dual_errors, low_errors, high_errors = score_patches_dual_ae(patches)
     dual_errors_norm = normalize_scores(dual_errors)
 
-    # =====================================================
-    # 1) Semantic Boundary Risk
-    # Airport dışı / çevresel alanları gösterir.
-    # =====================================================
+    
+    
+    # airport dısı alanlar
+    
     semantic_scores = non_airport_probs.copy()
 
     airport_confident_mask = airport_probs > 0.70
@@ -381,11 +356,6 @@ def analyze_uploaded_image(uploaded_file):
     semantic_scores[semantic_scores < 0.20] = 0.0
     semantic_scores = np.clip(semantic_scores, 0.0, 1.0)
 
-    # =====================================================
-    # 2) Operational Anomaly Risk
-    # Sadece airport_component alanlarda Dual AE hatası gösterilir.
-    # Non-airport bölgelerde sıfırlanır.
-    # =====================================================
     operational_scores = dual_errors_norm.copy()
     operational_scores[non_airport_probs > 0.70] = 0.0
     operational_scores[airport_probs < 0.50] = 0.0
@@ -527,10 +497,6 @@ def analyze_uploaded_image(uploaded_file):
         "predicted_class_top": predicted_class_name,
     }
 
-
-# =========================================================
-# Görselleştirme
-# =========================================================
 def draw_original_with_box(image_arr, top_coord, patch_size=128):
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.imshow(image_arr)
@@ -568,10 +534,6 @@ def draw_heatmap_overlay(image_arr, heatmap, title="Heatmap"):
 
     return fig
 
-
-# =========================================================
-# Streamlit Arayüz
-# =========================================================
 st.set_page_config(
     page_title="Airport Boundary + Operational Risk Demo",
     layout="wide"
