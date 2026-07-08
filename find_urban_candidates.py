@@ -5,9 +5,6 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-# =========================
-# Ayarlar
-# =========================
 SOURCE_DIR = r"C:\Users\Esra\Desktop\project\patches\airport_128\train"
 OUTPUT_DIR = r"C:\Users\Esra\Desktop\project\urban_candidates"
 CSV_PATH = r"C:\Users\Esra\Desktop\project\urban_candidates_scores.csv"
@@ -34,30 +31,24 @@ def compute_urban_score(img_rgb):
     h, s, v = cv2.split(hsv)
     r, g, b = img[:, :, 0], img[:, :, 1], img[:, :, 2]
 
-    # Kenar yoğunluğu: bina/şehir/yol dokusunda yüksek olur
+   
     edges = cv2.Canny(gray, 60, 140)
     edge_density = np.mean(edges > 0)
 
-    # Gri/beton/çatı/asfalt oranı
     rgb_std = np.std(img.astype(np.float32), axis=2)
     gray_like_ratio = np.mean(rgb_std < 22)
 
-    # Yeşil alanı bastır
     vegetation_ratio = np.mean((g > r * 1.12) & (g > b * 1.12) & (g > 45))
 
-    # Çok koyu su/göl/boş alan benzeri bölgeleri bastır
     dark_ratio = np.mean(v < 35)
 
-    # Düşük saturasyon: beton/çatı/yol için faydalı
     low_saturation_ratio = np.mean(s < 70)
 
-    # Parlak çatı/beton alanları
+    # Parlak çatı
     bright_gray_ratio = np.mean((v > 90) & (s < 80))
 
-    # Doku çeşitliliği
-    texture_score = np.std(gray) / 255.0
-
-    # Final urban/bina/yol aday skoru
+    # Doku farklılıkları
+    texture_score = np.std(gray) / 255
     score = (
         2.5 * edge_density +
         1.5 * gray_like_ratio +
