@@ -13,11 +13,11 @@ STRIDE = 128
 def patch_is_useful(patch, dark_thresh=10, std_thresh=12):
     gray = cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY)
 
-    # Çok karanlık patch
+   
     if np.mean(gray) < dark_thresh:
         return False
 
-    # Çok düz (bilgi yok)
+    # Çok düz
     if np.std(gray) < std_thresh:
         return False
 
