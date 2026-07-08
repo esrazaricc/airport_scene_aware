@@ -17,10 +17,6 @@ from scipy.ndimage import gaussian_filter
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
 import numpy as np
 
-
-# =========================================================
-# Ayarlar
-# =========================================================
 PROJECT_ROOT = r"C:\Users\Esra\Desktop\project"
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
@@ -35,10 +31,6 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 CLASS_NAMES = ["airport_component", "non_airport"]
 
-
-# =========================================================
-# Low-Level AutoEncoder
-# =========================================================
 class LowLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -74,9 +66,6 @@ class LowLevelAE(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-# =========================================================
-# High-Level AutoEncoder
-# =========================================================
 class HighLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -112,9 +101,7 @@ class HighLevelAE(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-# =========================================================
-# Model yükleme
-# =========================================================
+
 @st.cache_resource
 def load_dual_ae_models():
     low_model = LowLevelAE().to(DEVICE)
@@ -147,11 +134,7 @@ transform = transforms.Compose([
     transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
     transforms.ToTensor()
 ])
-
-
-# =========================================================
-# Patch işlemleri
-# =========================================================
+#patch işlemi
 def image_to_patches(pil_img: Image.Image, patch_size=128, stride=64):
     rgb = pil_img.convert("RGB")
     arr = np.array(rgb)
@@ -174,9 +157,8 @@ def patches_to_tensor(patches):
     return torch.stack(tensors).to(DEVICE)
 
 
-# =========================================================
-# Binary Semantic Classifier
-# =========================================================
+
+# Binary SC
 def score_patches_binary_classifier(patches, batch_size=64):
     model = load_binary_classifier()
 
@@ -207,9 +189,7 @@ def score_patches_binary_classifier(patches, batch_size=64):
     )
 
 
-# =========================================================
-# Dual AE Operational Anomaly
-# =========================================================
+
 def score_patches_dual_ae(patches, batch_size=64):
     low_model, high_model = load_dual_ae_models()
 
@@ -236,10 +216,6 @@ def score_patches_dual_ae(patches, batch_size=64):
 
     return dual_errors, low_errors, high_errors
 
-
-# =========================================================
-# Yardımcılar
-# =========================================================
 def normalize_scores(scores):
     mn = float(scores.min())
     mx = float(scores.max())
@@ -314,10 +290,6 @@ def explanation_text(result):
         f"Operational risk seviyesi: {result['operational_risk']}."
     )
 
-
-# =========================================================
-# Ana analiz
-# =========================================================
 def analyze_uploaded_image(uploaded_file):
     pil_img = Image.open(uploaded_file).convert("RGB")
 
@@ -337,9 +309,7 @@ def analyze_uploaded_image(uploaded_file):
     dual_errors, low_errors, high_errors = score_patches_dual_ae(patches)
     dual_errors_norm = normalize_scores(dual_errors)
 
-    # =====================================================
-    # 1) Semantic Boundary Risk
-    # =====================================================
+    
     semantic_scores = non_airport_probs.copy()
 
     airport_confident_mask = airport_probs > 0.70
@@ -354,9 +324,6 @@ def analyze_uploaded_image(uploaded_file):
     semantic_scores[semantic_scores < 0.20] = 0.0
     semantic_scores = np.clip(semantic_scores, 0.0, 1.0)
 
-    # =====================================================
-    # 2) Operational Anomaly Risk
-    # =====================================================
     operational_scores = dual_errors_norm.copy()
     operational_scores[non_airport_probs > 0.70] = 0.0
     operational_scores[airport_probs < 0.50] = 0.0
@@ -468,10 +435,8 @@ def analyze_uploaded_image(uploaded_file):
         "percentile_top": float(patch_percentiles[semantic_top_idx]),
     }
 
-
-# =========================================================
 # Görselleştirme
-# =========================================================
+
 def draw_original_with_box(image_arr, top_coord, patch_size=128):
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.imshow(image_arr)
@@ -509,10 +474,6 @@ def draw_heatmap_overlay(image_arr, heatmap, title="Heatmap"):
 
     return fig
 
-
-# =========================================================
-# Streamlit Dashboard
-# =========================================================
 st.set_page_config(
     page_title="Havalimanı Semantic Risk Analizi",
     layout="wide"
