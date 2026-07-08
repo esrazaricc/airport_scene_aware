@@ -80,3 +80,9 @@ Havaalanları, uçak, apron, pist ve terminal gibi operasyonel alanlarıyla karm
 2. Gerekli paketler:  
 ```bash
 pip install -r requirements.txt
+
+## Proje Görüntüsü
+
+<img width="1714" height="843" alt="Ekran görüntüsü 2026-05-24 233013" src="https://github.com/user-attachments/assets/f56d5893-e77c-4c5e-9e41-57df4b72a058" />
+
+
