@@ -5,9 +5,6 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-# =========================
-# Ayarlar
-# =========================
 SOURCE_DIR = r"C:\Users\Esra\Desktop\project\raw_data"
 PATCH_DIR = r"C:\Users\Esra\Desktop\project\raw_urban_patches"
 OUTPUT_DIR = r"C:\Users\Esra\Desktop\project\urban_candidates"
