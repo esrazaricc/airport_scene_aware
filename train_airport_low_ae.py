@@ -7,9 +7,6 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 
-# =========================
-# Ayarlar
-# =========================
 TRAIN_DIR = r"C:\Users\Esra\Desktop\project\patches\airport_128\train"
 SAVE_PATH = r"C:\Users\Esra\Desktop\project\results\airport_low_ae.pth"
 
@@ -19,9 +16,6 @@ EPOCHS = 15
 LR = 1e-4
 IMAGE_SIZE = 128
 
-# =========================
-# Dataset
-# =========================
 class PatchDataset(Dataset):
     def __init__(self, folder_path):
         self.image_paths = [
@@ -43,10 +37,7 @@ class PatchDataset(Dataset):
         image = self.transform(image)
         return image
 
-# =========================
-# Low-level AutoEncoder
-# kernel = 3
-# =========================
+
 class LowLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -83,15 +74,11 @@ class LowLevelAE(nn.Module):
         out = self.decoder(z)
         return out
 
-# =========================
-# Data
-# =========================
+
 dataset = PatchDataset(TRAIN_DIR)
 loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
-# =========================
-# Model
-# =========================
+
 model = LowLevelAE().to(DEVICE)
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
@@ -99,9 +86,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 print("Cihaz:", DEVICE)
 print("Train patch sayısı:", len(dataset))
 
-# =========================
-# Eğitim
-# =========================
 for epoch in range(EPOCHS):
     model.train()
     total_loss = 0.0
