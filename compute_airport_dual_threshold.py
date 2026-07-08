@@ -7,9 +7,7 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 
-# =========================
-# Ayarlar
-# =========================
+
 VAL_DIR = r"C:\Users\Esra\Desktop\project\patches\airport_128\val"
 LOW_MODEL_PATH = r"C:\Users\Esra\Desktop\project\results\airport_low_ae.pth"
 HIGH_MODEL_PATH = r"C:\Users\Esra\Desktop\project\results\airport_high_ae.pth"
@@ -19,9 +17,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 64
 IMAGE_SIZE = 128
 
-# =========================
-# Dataset
-# =========================
+
 class PatchDataset(Dataset):
     def __init__(self, folder_path):
         self.image_paths = [
@@ -41,9 +37,7 @@ class PatchDataset(Dataset):
         img = Image.open(self.image_paths[idx]).convert("RGB")
         return self.transform(img)
 
-# =========================
-# Low AE
-# =========================
+
 class LowLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -78,9 +72,7 @@ class LowLevelAE(nn.Module):
     def forward(self, x):
         return self.decoder(self.encoder(x))
 
-# =========================
-# High AE
-# =========================
+
 class HighLevelAE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -115,15 +107,15 @@ class HighLevelAE(nn.Module):
     def forward(self, x):
         return self.decoder(self.encoder(x))
 
-# =========================
+
 # Data
-# =========================
+
 dataset = PatchDataset(VAL_DIR)
 loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
-# =========================
+
 # Models
-# =========================
+
 low_model = LowLevelAE().to(DEVICE)
 high_model = HighLevelAE().to(DEVICE)
 
