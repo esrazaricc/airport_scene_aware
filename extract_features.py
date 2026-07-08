@@ -8,9 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 import torchvision.models as models
 import torchvision.transforms as transforms
 
-# =========================
-# Yollar
-# =========================
+
 TRAIN_DIR = r"C:\Users\Esra\Desktop\project\patches\train_final"
 MODEL_PATH = r"C:\Users\Esra\Desktop\project\results\simclr_epoch_3.pth"
 SAVE_FEATURES = r"C:\Users\Esra\Desktop\project\results\train_features.npy"
@@ -19,9 +17,8 @@ SAVE_PATHS = r"C:\Users\Esra\Desktop\project\results\train_feature_paths.npy"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 32
 
-# =========================
+
 # Dataset
-# =========================
 class FeatureDataset(Dataset):
     def __init__(self, folder_path):
         self.image_paths = [
@@ -43,9 +40,7 @@ class FeatureDataset(Dataset):
         image = self.transform(image)
         return image, path
 
-# =========================
 # Model
-# =========================
 class SimCLR(nn.Module):
     def __init__(self, projection_dim=128):
         super().__init__()
@@ -66,9 +61,7 @@ class SimCLR(nn.Module):
         z = nn.functional.normalize(z, dim=1)
         return h, z
 
-# =========================
-# Yükleme
-# =========================
+
 dataset = FeatureDataset(TRAIN_DIR)
 loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
