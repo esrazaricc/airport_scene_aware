@@ -1,9 +1,6 @@
 import os
 from PIL import Image
 
-# =====================================================
-# Ayarlar
-# =====================================================
 PROJECT_ROOT = r"C:\Users\Esra\Desktop\project"
 
 INPUT_IMAGE_PATH = r"C:\Users\Esra\Desktop\project\raw_data\1076.tif"
@@ -26,16 +23,10 @@ CLASSES = [
 
 SPLIT = "train"  # train veya val
 
-# =====================================================
-# Kayıt klasörlerini kontrol et
-# =====================================================
 for class_name in CLASSES:
     folder = os.path.join(OUTPUT_ROOT, SPLIT, class_name)
     os.makedirs(folder, exist_ok=True)
 
-# =====================================================
-# Görüntüyü aç
-# =====================================================
 img = Image.open(INPUT_IMAGE_PATH).convert("RGB")
 w, h = img.size
 
@@ -49,9 +40,6 @@ for i, c in enumerate(CLASSES):
 patch_id = 0
 saved_count = 0
 
-# =====================================================
-# Patch üret ve kullanıcıdan sınıf iste
-# =====================================================
 for y in range(0, h - PATCH_SIZE + 1, STRIDE):
     for x in range(0, w - PATCH_SIZE + 1, STRIDE):
         patch = img.crop((x, y, x + PATCH_SIZE, y + PATCH_SIZE))
