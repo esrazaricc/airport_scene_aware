@@ -6,9 +6,7 @@ import torchvision.models as models
 from torch.utils.data import DataLoader
 from ssl_dataset import PatchDataset, SimCLRTransform
 
-# =========================
-# Ayarlar
-# =========================
+
 TRAIN_DIR = r"C:\Users\Esra\Desktop\project\patches\train_final"
 SAVE_DIR = r"C:\Users\Esra\Desktop\project\results"
 os.makedirs(SAVE_DIR, exist_ok=True)
@@ -19,15 +17,10 @@ LR = 1e-3
 TEMPERATURE = 0.5
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# =========================
-# Dataset / DataLoader
-# =========================
 dataset = PatchDataset(TRAIN_DIR, transform=SimCLRTransform(image_size=224))
 loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True)
 
-# =========================
-# Model
-# =========================
+
 class SimCLR(nn.Module):
     def __init__(self, base_model="resnet18", projection_dim=128):
         super().__init__()
@@ -52,9 +45,6 @@ class SimCLR(nn.Module):
         z = nn.functional.normalize(z, dim=1)
         return h, z
 
-# =========================
-# NT-Xent Loss
-# =========================
 def nt_xent_loss(z1, z2, temperature=0.5):
     batch_size = z1.size(0)
 
@@ -73,18 +63,13 @@ def nt_xent_loss(z1, z2, temperature=0.5):
     loss = -positives + denominator
     return loss.mean()
 
-# =========================
-# Eğitim hazırlığı
-# =========================
 model = SimCLR().to(DEVICE)
 optimizer = optim.Adam(model.parameters(), lr=LR)
 
 print("Cihaz:", DEVICE)
 print("Toplam batch:", len(loader))
 
-# =========================
-# Eğitim döngüsü
-# =========================
+
 for epoch in range(EPOCHS):
     model.train()
     total_loss = 0.0
