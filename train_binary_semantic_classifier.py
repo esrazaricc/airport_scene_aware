@@ -7,9 +7,7 @@ from PIL import Image
 import os
 import numpy as np
 
-# =========================
-# Ayarlar
-# =========================
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 IMAGE_SIZE = 128
 BATCH_SIZE = 32
@@ -29,9 +27,7 @@ class BinaryDataset(Dataset):
         img = Image.open(self.image_paths[idx]).convert("RGB")
         return self.transform(img), self.labels[idx]
 
-# =========================
-# Veri yolu ve etiketler
-# =========================
+
 train_dir_air = r"C:\Users\Esra\Desktop\project\semantic_binary_dataset\train\airport_component"
 train_dir_non = r"C:\Users\Esra\Desktop\project\semantic_binary_dataset\train\non_airport"
 
@@ -44,9 +40,7 @@ train_labels = [1]*len(os.listdir(train_dir_air)) + [0]*len(os.listdir(train_dir
 train_dataset = BinaryDataset(train_image_paths, train_labels)
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-# =========================
-# Model
-# =========================
+
 model = models.resnet18(pretrained=False)
 model.fc = nn.Linear(512, 2)  # binary
 model = model.to(DEVICE)
@@ -55,9 +49,7 @@ model = model.to(DEVICE)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-# =========================
-# Training
-# =========================
+
 EPOCHS = 5
 for epoch in range(EPOCHS):
     model.train()
@@ -72,9 +64,7 @@ for epoch in range(EPOCHS):
         loss.backward()
         optimizer.step()
 
-# =========================
-# Değerlendirme: Accuracy, F1, Precision, Recall, IoU
-# =========================
+
 model.eval()
 all_labels = []
 all_preds = []
